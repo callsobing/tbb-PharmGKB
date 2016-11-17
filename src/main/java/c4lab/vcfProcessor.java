@@ -91,6 +91,6 @@ public class vcfProcessor implements Serializable {
 //        }).filter(x -> x._1.equals("none"));
 
 
-        aa.saveAsTextFile("file:///root/pgkb/test");
+        aa.coalesce(5).saveAsTextFile("file:///root/pgkb/test");
     }
 }
