@@ -42,28 +42,30 @@ public class vcfProcessor implements Serializable {
                     return col;
                 }
         );
-
-        JavaPairRDD<String, String> aa = vctx.mapToPair(new PairFunction<VariantContext, String, String>() {
-            @Override
-            public Tuple2<String, String> call(VariantContext variantContext) throws Exception {
-                List<String> rsidList = rsidListBc.getValue();
-                if(rsidList.contains(variantContext.getID())) {
-                    if(variantContext.getAlleles().size() > 2){
-                        return new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles");
-                    }
-                    float chromosomeCount = 0;
-                    float sampleChromCount = 0;
-                    List<String> sampleIds = variantContext.getSampleNamesOrderedByName();
-                    for(String sampleid: sampleIds){
-                        chromosomeCount += variantContext.getGenotype(sampleid).countAllele(variantContext.getAlternateAllele(0));
-                        sampleChromCount += 2;
-                    }
-                    Float allelFreq = chromosomeCount/sampleChromCount;
-                    return new Tuple2<String, String>(variantContext.getID(), allelFreq.toString());
-                }
-                return new Tuple2<String, String>(variantContext.getID(), "not in the list");
-            }
-        });
-        aa.saveAsTextFile("file:///root/pgkb/test");
+//
+//        JavaPairRDD<String, String> aa = vctx.mapToPair(new PairFunction<VariantContext, String, String>() {
+//            @Override
+//            public Tuple2<String, String> call(VariantContext variantContext) throws Exception {
+//                List<String> rsidList = rsidListBc.getValue();
+//                if(rsidList.contains(variantContext.getID())) {
+//                    if(variantContext.getAlleles().size() > 2){
+//                        return new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles");
+//                    }
+//                    float chromosomeCount = 0;
+//                    float sampleChromCount = 0;
+//                    List<String> sampleIds = variantContext.getSampleNamesOrderedByName();
+//                    for(String sampleid: sampleIds){
+//                        chromosomeCount += variantContext.getGenotype(sampleid).countAllele(variantContext.getAlternateAllele(0));
+//                        sampleChromCount += 2;
+//                    }
+//                    Float allelFreq = chromosomeCount/sampleChromCount;
+//                    return new Tuple2<String, String>(variantContext.getID(), allelFreq.toString());
+//                }
+//                return new Tuple2<String, String>(variantContext.getID(), "not in the list");
+//            }
+//        });
+//
+        JavaPairRDD<String, VariantContext> aa = vctx.mapToPair(x -> new Tuple2<String, VariantContext>("1",x)).filter(d -> d._1.isEmpty());
+        aa.saveAsTextFile("/home/callsobing/public_html/output");
     }
 }
