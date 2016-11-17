@@ -60,8 +60,6 @@ public class vcfProcessor implements Serializable {
                     }
                     Float allelFreq = chromosomeCount/sampleChromCount;
                     output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
-                } else {
-                    output.add(new Tuple2<String, String>(variantContext.getID(), "not in the list"));
                 }
                 return output.iterator();
             }
