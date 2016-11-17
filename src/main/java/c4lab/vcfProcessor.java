@@ -47,19 +47,22 @@ public class vcfProcessor implements Serializable {
             @Override
             public Iterator<Tuple2<String, String>> call(VariantContext variantContext) throws Exception {
                 List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
-                if(rsidList.contains(variantContext.getID())) {
-                    if(variantContext.getAlleles().size() > 2){
-                        output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
+                String [] variantIds = variantContext.getID().split(",");
+                for(String variantId: variantIds) {
+                    if (rsidList.contains(variantId)) {
+                        if (variantContext.getAlleles().size() > 2) {
+                            output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
+                        }
+                        float chromosomeCount = 0;
+                        float sampleChromCount = 0;
+                        List<String> sampleIds = variantContext.getSampleNamesOrderedByName();
+                        for (String sampleid : sampleIds) {
+                            chromosomeCount += variantContext.getGenotype(sampleid).countAllele(variantContext.getAlternateAllele(0));
+                            sampleChromCount += 2;
+                        }
+                        Float allelFreq = chromosomeCount / sampleChromCount;
+                        output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
                     }
-                    float chromosomeCount = 0;
-                    float sampleChromCount = 0;
-                    List<String> sampleIds = variantContext.getSampleNamesOrderedByName();
-                    for(String sampleid: sampleIds){
-                        chromosomeCount += variantContext.getGenotype(sampleid).countAllele(variantContext.getAlternateAllele(0));
-                        sampleChromCount += 2;
-                    }
-                    Float allelFreq = chromosomeCount/sampleChromCount;
-                    output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
                 }
                 return output.iterator();
             }
