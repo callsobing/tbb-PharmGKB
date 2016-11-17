@@ -66,6 +66,6 @@ public class vcfProcessor implements Serializable {
 //        });
 //
         JavaPairRDD<String, VariantContext> aa = vctx.mapToPair(x -> new Tuple2<String, VariantContext>("1",x)).filter(d -> d._1.isEmpty());
-        aa.saveAsTextFile("/home/callsobing/public_html/output");
+        aa.saveAsTextFile("file:///root/pgkb/test");
     }
 }
