@@ -45,7 +45,7 @@ public class vcfProcessor implements Serializable {
 
         JavaPairRDD<String, String> aa = vctx.flatMapToPair(new PairFlatMapFunction<VariantContext, String, String>() {
             @Override
-            public Iterable<Tuple2<String, String>> call(VariantContext variantContext) throws Exception {
+            public Iterator<Tuple2<String, String>> call(VariantContext variantContext) throws Exception {
                 List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
                 if(rsidList.contains(variantContext.getID())) {
                     if(variantContext.getAlleles().size() > 2){
@@ -61,7 +61,7 @@ public class vcfProcessor implements Serializable {
                     Float allelFreq = chromosomeCount/sampleChromCount;
                     output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
                 }
-                return output;
+                return output.iterator();
             }
         });
 
