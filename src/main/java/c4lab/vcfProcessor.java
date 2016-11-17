@@ -43,13 +43,13 @@ public class vcfProcessor implements Serializable {
             sampleIdList.add(sampleHeader.get(k));
         }
 
-
-        JavaPairRDD<String, String> aa = vctx.mapToPair(new PairFunction<VariantContext, String, String>() {
+        JavaPairRDD<String, String> aa = vctx.flatMapToPair(new PairFlatMapFunction<VariantContext, String, String>() {
             @Override
-            public Tuple2<String, String> call(VariantContext variantContext) throws Exception {
+            public Iterable<Tuple2<String, String>> call(VariantContext variantContext) throws Exception {
+                List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
                 if(rsidList.contains(variantContext.getID())) {
                     if(variantContext.getAlleles().size() > 2){
-                        return new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles");
+                        output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
                     }
                     float chromosomeCount = 0;
                     float sampleChromCount = 0;
@@ -59,11 +59,33 @@ public class vcfProcessor implements Serializable {
                         sampleChromCount += 2;
                     }
                     Float allelFreq = chromosomeCount/sampleChromCount;
-                    return new Tuple2<String, String>(variantContext.getID(), allelFreq.toString());
+                    output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
                 }
-                return null;
+                return output;
             }
-        }).filter(x -> !x.equals(null));
+        });
+
+//
+//        JavaPairRDD<String, String> aa = vctx.mapToPair(new PairFunction<VariantContext, String, String>() {
+//            @Override
+//            public Tuple2<String, String> call(VariantContext variantContext) throws Exception {
+//                if(rsidList.contains(variantContext.getID())) {
+//                    if(variantContext.getAlleles().size() > 2){
+//                        return new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles");
+//                    }
+//                    float chromosomeCount = 0;
+//                    float sampleChromCount = 0;
+//                    List<String> sampleIds = variantContext.getSampleNamesOrderedByName();
+//                    for(String sampleid: sampleIds){
+//                        chromosomeCount += variantContext.getGenotype(sampleid).countAllele(variantContext.getAlternateAllele(0));
+//                        sampleChromCount += 2;
+//                    }
+//                    Float allelFreq = chromosomeCount/sampleChromCount;
+//                    return new Tuple2<String, String>(variantContext.getID(), allelFreq.toString());
+//                }
+//                return new Tuple2<String, String>("none", "");
+//            }
+//        }).filter(x -> x._1.equals("none"));
 
 
         aa.saveAsTextFile("file:///root/pgkb/test");
