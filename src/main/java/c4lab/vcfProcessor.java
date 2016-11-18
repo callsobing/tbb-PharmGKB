@@ -49,7 +49,7 @@ public class vcfProcessor implements Serializable {
                 List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
                 String [] variantIds = variantContext.getID().split(",");
                 for(String variantId: variantIds) {
-//                    if (rsidList.contains(variantId)) {
+                    if (rsidList.contains(variantId)) {
                         if (variantContext.getAlleles().size() > 2) {
                             output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
                         }
@@ -62,7 +62,7 @@ public class vcfProcessor implements Serializable {
                         }
                         Float allelFreq = chromosomeCount / sampleChromCount;
                         output.add(new Tuple2<String, String>(variantContext.getID(), allelFreq.toString()));
-//                    }
+                    }
                 }
                 return output.iterator();
             }
@@ -91,6 +91,6 @@ public class vcfProcessor implements Serializable {
 //        }).filter(x -> x._1.equals("none"));
 
 
-        aa.saveAsTextFile("file:///root/pgkb/test");
+        aa.saveAsTextFile("file:///root/pgkb/pgkbin1kg/");
     }
 }
