@@ -22,7 +22,7 @@ import java.util.*;
 
 public class vcfProcessor implements Serializable {
     public static void main(String[] args) throws IOException {
-        Pedigree pedigree = new Pedigree(new Path("file:///root/workspace/the1000genomes/20130606_g1k.ped"));
+        Pedigree pedigree = new Pedigree(new Path("/ped/20130606_g1k.ped"));
         final String vcfPath = args[0];
         SparkConf conf = new SparkConf();
         JavaSparkContext sc = new JavaSparkContext(conf);
