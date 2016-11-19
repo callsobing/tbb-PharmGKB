@@ -31,16 +31,18 @@ public class Individual implements Serializable {
     private String motherId;
     private String gender;
     private String phenotype;
+    private String population;
     private String[] parts;
 
     public Individual(String familyId, String individualId, String fatherId,
-                      String motherId, String gender, String phenotype, String[] parts) {
+                      String motherId, String gender, String phenotype, String population, String[] parts) {
         this.familyId = familyId;
         this.individualId = individualId;
         this.fatherId = fatherId;
         this.motherId = motherId;
         this.gender = gender;
         this.phenotype = phenotype;
+        this.population = population;
         this.parts = parts;
     }
 
@@ -68,6 +70,10 @@ public class Individual implements Serializable {
         return phenotype;
     }
 
+    public String getPopulation() {
+        return population;
+    }
+
     public String[] getParts() {
         return parts;
     }
@@ -81,6 +87,7 @@ public class Individual implements Serializable {
                 ", motherId='" + motherId + '\'' +
                 ", gender='" + gender + '\'' +
                 ", phenotype='" + phenotype + '\'' +
+                ", population='" + population + '\'' +
                 ", parts=" + Arrays.toString(parts) +
                 '}';
     }

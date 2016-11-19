@@ -4,6 +4,7 @@ import htsjdk.tribble.readers.LineIteratorImpl;
 import htsjdk.tribble.readers.LineReaderUtil;
 import htsjdk.variant.variantcontext.VariantContext;
 import htsjdk.variant.vcf.VCFCodec;
+import org.apache.hadoop.fs.Path;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaPairRDD;
 import org.apache.spark.api.java.JavaRDD;
@@ -11,6 +12,8 @@ import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.PairFlatMapFunction;
 import org.apache.spark.api.java.function.PairFunction;
 import org.apache.spark.broadcast.Broadcast;
+import ped.Individual;
+import ped.Pedigree;
 import scala.Tuple2;
 import functions.GetVctx;
 
@@ -19,11 +22,27 @@ import java.util.*;
 
 public class vcfProcessor implements Serializable {
     public static void main(String[] args) throws IOException {
+        Pedigree pedigree = new Pedigree(new Path("file:///root/workspace/the1000genomes/20130606_g1k.ped"));
         final String vcfPath = args[0];
         SparkConf conf = new SparkConf();
         JavaSparkContext sc = new JavaSparkContext(conf);
         JavaRDD<String> file = sc.textFile(vcfPath);
-        Broadcast<List<String>> rsidListBc = sc.broadcast(Arrays.asList("rs1042713","rs1045642","rs1050828","rs1057910","rs113993959","rs113993960","rs116855232","rs121434568","rs121434569","rs121908755","rs121908757","rs121909005","rs121909041","rs12248560","rs12979860","rs145489027","rs1695","rs17244841","rs17708472","rs1799752","rs1799853","rs1799978","rs1800497","rs1800566","rs1801131","rs1801133","rs193922525","rs1954787","rs2032582","rs2108622","rs2228001","rs2279343","rs2279345","rs2297595","rs2359612","rs264631","rs264651","rs267606617","rs267606723","rs2740574","rs28371686","rs28399499","rs28399504","rs2884737","rs3745274","rs3892097","rs3918290","rs4148323","rs4149015","rs4149056","rs4244285","rs4680","rs4917639","rs4986893","rs55886062","rs56165452","rs6025","rs61742245","rs67376798","rs7294","rs7412","rs74503330","rs75039782","rs75527207","rs77010898","rs776746","rs7900194","rs80282562","rs8050894","rs8099917","rs8175347","rs887829","rs9923231","rs9934438"));
+        Broadcast<List<String>> rsidListBc = sc.broadcast(Arrays.asList(
+                "rs1042713","rs1045642","rs1050828","rs1057910","rs113993959","rs113993960","rs116855232","rs121434568",
+                "rs121434569","rs121908755","rs121908757","rs121909005","rs121909041","rs12248560","rs12979860",
+                "rs145489027","rs1695","rs17244841","rs17708472","rs1799752","rs1799853","rs1799978","rs1800497",
+                "rs1800566","rs1801131","rs1801133","rs193922525","rs1954787","rs2032582","rs2108622","rs2228001",
+                "rs2279343","rs2279345","rs2297595","rs2359612","rs264631","rs264651","rs267606617","rs267606723",
+                "rs2740574","rs28371686","rs28399499","rs28399504","rs2884737","rs3745274","rs3892097","rs3918290",
+                "rs4148323","rs4149015","rs4149056","rs4244285","rs4680","rs4917639","rs4986893","rs55886062",
+                "rs56165452","rs6025","rs61742245","rs67376798","rs7294","rs7412","rs74503330","rs75039782",
+                "rs75527207","rs77010898","rs776746","rs7900194","rs80282562","rs8050894","rs8099917","rs8175347",
+                "rs887829","rs9923231","rs9934438"));
+
+        Map<String, String> pedigreeMap = new HashMap<>();
+        for(Individual sample: pedigree.getIndividuals()){
+            pedigreeMap.put(sample.getIndividualId(), sample.getPopulation());
+        }
 
         final String VCFHeaderStrings = file
                 .filter(line -> line.startsWith("#"))
@@ -49,8 +68,35 @@ public class vcfProcessor implements Serializable {
                 List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
                 String [] variantIds = variantContext.getID().split(",");
                 List<String> rsidList = rsidListBc.getValue();
+                Map<String, Float> populationHits = new HashMap<String, Float>();
+                populationHits.put("ACB", 0f);
+                populationHits.put("ASW" , 0f);
+                populationHits.put("BEB" , 0f);
+                populationHits.put("CDX" , 0f);
+                populationHits.put("CEU" , 0f);
+                populationHits.put("CHB" , 0f);
+                populationHits.put("CHS" , 0f);
+                populationHits.put("CLM" , 0f);
+                populationHits.put("ESN" , 0f);
+                populationHits.put("FIN" , 0f);
+                populationHits.put("GBR" , 0f);
+                populationHits.put("GIH" , 0f);
+                populationHits.put("GWD" , 0f);
+                populationHits.put("IBS" , 0f);
+                populationHits.put("ITU" , 0f);
+                populationHits.put("JPT" , 0f);
+                populationHits.put("KHV" , 0f);
+                populationHits.put("LWK" , 0f);
+                populationHits.put("MSL" , 0f);
+                populationHits.put("MXL" , 0f);
+                populationHits.put("PEL" , 0f);
+                populationHits.put("PJL" , 0f);
+                populationHits.put("PUR" , 0f);
+                populationHits.put("STU" , 0f);
+                populationHits.put("TSI" , 0f);
+                populationHits.put("YRI" , 0f);
                 for(String variantId: variantIds) {
-                    if (rsidList.contains(variantId)) {
+                    if (rsidList.equals(variantId)) {
                         if (variantContext.getAlleles().size() > 2) {
                             output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
                         }

@@ -43,7 +43,7 @@ public class Pedigree implements Iterable<Individual>, Serializable {
 
             while ((line = br.readLine()) != null) {    // content start here
                 String[] cols = line.split("\\s+");
-                Individual indiv = new Individual(cols[0], cols[1], cols[2], cols[3], cols[4], cols[5], cols);
+                Individual indiv = new Individual(cols[0], cols[1], cols[2], cols[3], cols[4], cols[5], cols[6], cols);
                 individuals.add(indiv);
             }
         }
