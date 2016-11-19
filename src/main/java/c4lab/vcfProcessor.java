@@ -27,7 +27,7 @@ public class vcfProcessor implements Serializable {
         SparkConf conf = new SparkConf();
         JavaSparkContext sc = new JavaSparkContext(conf);
         JavaRDD<String> file = sc.textFile(vcfPath);
-        Broadcast<List<String>> rsidListBc = sc.broadcast(Arrays.asList(
+        List<String> rsidList = Arrays.asList(
                 "rs1042713","rs1045642","rs1050828","rs1057910","rs113993959","rs113993960","rs116855232","rs121434568",
                 "rs121434569","rs121908755","rs121908757","rs121909005","rs121909041","rs12248560","rs12979860",
                 "rs145489027","rs1695","rs17244841","rs17708472","rs1799752","rs1799853","rs1799978","rs1800497",
@@ -37,7 +37,11 @@ public class vcfProcessor implements Serializable {
                 "rs4148323","rs4149015","rs4149056","rs4244285","rs4680","rs4917639","rs4986893","rs55886062",
                 "rs56165452","rs6025","rs61742245","rs67376798","rs7294","rs7412","rs74503330","rs75039782",
                 "rs75527207","rs77010898","rs776746","rs7900194","rs80282562","rs8050894","rs8099917","rs8175347",
-                "rs887829","rs9923231","rs9934438"));
+                "rs887829","rs9923231","rs9934438");
+        Map<String, Boolean> rsidMap = new HashMap<>();
+        for(String id: rsidList){
+            rsidMap.put(id, true);
+        }
 
         Map<String, String> pedigreeMap = new HashMap<>();
         for(Individual sample: pedigree.getIndividuals()){
@@ -67,7 +71,7 @@ public class vcfProcessor implements Serializable {
             public Iterator<Tuple2<String, String>> call(VariantContext variantContext) throws Exception {
                 List<Tuple2<String, String>> output = new ArrayList<Tuple2<String, String>>();
                 String [] variantIds = variantContext.getID().split(",");
-                List<String> rsidList = rsidListBc.getValue();
+
                 Map<String, Float> populationHits = new HashMap<String, Float>();
                 populationHits.put("ACB", 0f);
                 populationHits.put("ASW" , 0f);
@@ -96,7 +100,7 @@ public class vcfProcessor implements Serializable {
                 populationHits.put("TSI" , 0f);
                 populationHits.put("YRI" , 0f);
                 for(String variantId: variantIds) {
-                    if (rsidList.equals(variantId)) {
+                    if (rsidMap.containsKey(variantId)) {
                         if (variantContext.getAlleles().size() > 2) {
                             output.add(new Tuple2<String, String>(variantContext.getID(), "got more than one alternative alleles"));
                         }
