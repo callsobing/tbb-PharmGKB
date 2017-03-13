@@ -10,10 +10,14 @@ if not os.path.exists(sys.argv[1]):
 if not os.path.exists(sys.argv[2]):
     sys.exit('ERROR: %s does not exist' % sys.argv[2])
 
-# bim with ref format: 1	rs9701055	0	565433	T	C   T (the last one is the reference from the hg19) 
+# bim with ref format: 1	rs9701055	0	565433	T	C   T (the last one is the reference from the hg19)
 bim_file = open(sys.argv[2])
 probe_list = []
+first_line = True
 for record in bim_file:
+    if first_line:
+        first_line = False
+        continue
     record = record.rstrip()
     splitted_record = record.split("\t")
     if not len(splitted_record) > 5:
