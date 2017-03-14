@@ -38,7 +38,7 @@ first_run = True
 samples = 0
 for record in ped_file:
     samples += 1
-    splitted_record = record.rstrip().split("\s")
+    splitted_record = record.rstrip().split()
     if first_run:
         genotype = [0] * ((len(splitted_record) - 5) / 2)
         first_run = False
